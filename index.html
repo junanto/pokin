@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informatics Game Arcade - Educational Web Games</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* --- RESET & BASIC STYLES --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #18122B;
+      color: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- HEADER / NAVBAR --- */
+    header {
+      background-color: #393053;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      background: #00F5D4;
+      color: #18122B;
+      font-weight: 800;
+      font-size: 1.5rem;
+      padding: 5px 12px;
+      border-radius: 12px;
+      letter-spacing: 1px;
+    }
+
+    .logo-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .search-box {
+      width: 100%;
+      max-width: 350px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 18px;
+      border-radius: 25px;
+      border: 2px solid #635985;
+      background-color: #18122B;
+      color: #FFF;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+      border-color: #00F5D4;
+      box-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
+    }
+
+    /* --- MAIN CONTENT & GRID --- */
+    main {
+      flex: 1;
+      padding: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 24px;
+      background-color: #00F5D4;
+      border-radius: 4px;
+    }
+
+    /* Poki-style Bento Grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 18px;
+      grid-auto-flow: dense;
+    }
+
+    .game-card {
+      background: #393053;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      aspect-ratio: 1 / 1;
+      border: 2px solid transparent;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: #00F5D4;
+      box-shadow: 0 12px 20px rgba(0, 245, 212, 0.2);
+    }
+
+    /* CSS khusus untuk variasi ukuran ala Poki */
+    .game-card.featured {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .game-card-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      background-color: #443C68;
+    }
+
+    .game-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(24, 18, 43, 0.95) 100%);
+    }
+
+    .game-info {
+      position: relative;
+      z-index: 2;
+      padding: 15px;
+    }
+
+    .game-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #FFFFFF;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    .game-card.featured .game-title {
+      font-size: 1.3rem;
+    }
+
+    .play-tag {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      background-color: #00F5D4;
+      color: #18122B;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    /* --- GAME MODAL / IFRAME PLAYER --- */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(10, 6, 20, 0.9);
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: #18122B;
+      width: 100%;
+      max-width: 1100px;
+      height: 90vh;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 245, 212, 0.2);
+      border: 2px solid #393053;
+    }
+
+    .modal-header {
+      background-color: #393053;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #00F5D4;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      background: #635985;
+      border: none;
+      color: #FFF;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-action:hover {
+      background: #00F5D4;
+      color: #18122B;
+    }
+
+    .btn-close {
+      background: #FF0055;
+      color: white;
+    }
+
+    .btn-close:hover {
+      background: #FF3377;
+      color: white;
+    }
+
+    .iframe-container {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+
+    .iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* --- RESPONSIVE STYLES --- */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .search-box {
+        max-width: 100%;
+      }
+      .game-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 12px;
+      }
+      .game-card.featured {
+        grid-column: span 2;
+        grid-row: span 1;
+      }
+      .modal-content {
+        height: 95vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER / TOOLBAR -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-badge">POKI</div>
+      <div class="logo-title">Informatics Arcade</div>
+    </div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Cari game pembelajaran..." onkeyup="filterGames()">
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main>
+    <div class="section-title">Semua Game Media Pembelajaran</div>
+    <div class="game-grid" id="gameGrid">
+      <!-- Game Cards Card akan digenerate otomatis melalui JS -->
+    </div>
+  </main>
+
+  <!-- GAME PLAYER MODAL (IFRAME POPOUP) -->
+  <div class="modal" id="gameModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">Judul Game</span>
+        <div class="modal-actions">
+          <a id="externalLink" href="#" target="_blank" class="btn-action">Buka Tab Baru ↗</a>
+          <button class="btn-action btn-close" onclick="closeGame()">Tutup ✕</button>
+        </div>
+      </div>
+      <div class="iframe-container">
+        <iframe id="gameIframe" src="" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DATA GAME DARI LINK USER
+    const games = [
+      { title: "STACK AND QUEUE CHALLENGE", url: "https://junanto.github.io/stecu_challenge", icon: "🥞", featured: true },
+      { title: "INSERTION-SELECTION SORT", url: "https://junanto.github.io/insert-select", icon: "📊", featured: false },
+      { title: "TEBAK KARAKTER DAN STRING", url: "https://junanto.github.io/charstring/", icon: "🔤", featured: false },
+      { title: "ARRAY MASTER", url: "https://junanto.github.io/arraymaster/", icon: "🔢", featured: true },
+      { title: "ULAR TANGGA MULTIPLAYER", url: "https://junanto.github.io/snakeladder/", icon: "🎲", featured: false },
+      { title: "PANJAT PINANG ONLINE", url: "https://junanto.github.io/panpinonline/", icon: "🚩", featured: false },
+      { title: "KUIS PERANGKAT JARINGAN", url: "https://junanto.github.io/perangkat-jaringan/", icon: "🌐", featured: false },
+      { title: "GAME TEBAK LINE CODING", url: "https://junanto.github.io/game-nrz/", icon: "💻", featured: true },
+      { title: "SIMULASI INSERTION SORT", url: "https://junanto.github.io/siminsertsort/", icon: "🔀", featured: false },
+      { title: "TEBAK DERET REKURSI", url: "https://junanto.github.io/rekursi/", icon: "🔄", featured: false },
+      { title: "GAME SANDI CAESAR", url: "https://junanto.github.io/sandi-caesar/", icon: "🔐", featured: false },
+      { title: "PARITY BLOCK CHALLENGE", url: "https://junanto.github.io/parity-game/", icon: "🧩", featured: true },
+      { title: "GAME LAN MAN WAN", url: "https://junanto.github.io/game-lan-man-wan/", icon: "📡", featured: false },
+      { title: "CHECKSUM TOURNAMENT", url: "https://junanto.github.io/checksum-game/", icon: "🏆", featured: false },
+      { title: "ULAR TANGGA SIMPLE", url: "https://junanto.github.io/ulartangga/", icon: "🐍", featured: false },
+      { title: "TEBAK SINYAL NRZ-INVERTED", url: "https://junanto.github.io/latihan-nrz-inverted/", icon: "📈", featured: false },
+      { title: "TEBAK ANALOG VS DIGITAL", url: "https://junanto.github.io/analog-vs-digital/", icon: "⚡", featured: false },
+      { title: "PARITY CHECK CHALLENGE", url: "https://junanto.github.io/parity_bit/", icon: "🛡️", featured: false }
+    ];
+
+    // GENERATE GRID CARDS
+    const gameGrid = document.getElementById('gameGrid');
+
+    function renderGames(items) {
+      gameGrid.innerHTML = '';
+      items.forEach(game => {
+        const card = document.createElement('div');
+        card.className = `game-card ${game.featured ? 'featured' : ''}`;
+        card.onclick = () => openGame(game.title, game.url);
+
+        card.innerHTML = `
+          <div class="game-card-bg">${game.icon}</div>
+          <div class="game-card-overlay"></div>
+          <div class="game-info">
+            <div class="game-title">${game.title}</div>
+            <span class="play-tag">Mainkan</span>
+          </div>
+        `;
+        gameGrid.appendChild(card);
+      });
+    }
+
+    // MODAL HANDLERS
+    function openGame(title, url) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('gameIframe').src = url;
+      document.getElementById('externalLink').href = url;
+      document.getElementById('gameModal').classList.add('active');
+    }
+
+    function closeGame() {
+      document.getElementById('gameModal').classList.remove('active');
+      document.getElementById('gameIframe').src = ''; // Clear iframe to stop sounds
+    }
+
+    // SEARCH FUNCTIONALITY
+    function filterGames() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = games.filter(game => game.title.toLowerCase().includes(query));
+      renderGames(filtered);
+    }
+
+    // INITIAL RENDER
+    renderGames(games);
+  </script>
+</body>
+</html>
